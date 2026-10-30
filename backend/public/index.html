@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guardian Sleeve - Owner Remote Portal</title>
+  <!-- Leaflet CSS for Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6C5CE7;
+      --primary-light: #ECEBFA;
+      --bg: #F4F6FA;
+      --surface: #FFFFFF;
+      --text: #1E272E;
+      --text-muted: #808E9B;
+      --green: #00B894;
+      --red: #D63031;
+      --orange: #FFA502;
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--surface);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      z-index: 1000;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--primary-light);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #E6F8F3;
+      color: var(--green);
+      transition: all 0.3s ease;
+    }
+
+    .status-badge.danger {
+      background: #FDEDEC;
+      color: var(--red);
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 74px);
+    }
+
+    .sidebar {
+      width: 400px;
+      background: var(--surface);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.03);
+      overflow-y: auto;
+      z-index: 500;
+    }
+
+    .map-container {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .card {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .vital-box {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .vital-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .vital-unit {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .actions-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-disarm {
+      background: var(--green);
+      color: white;
+    }
+    .btn-disarm:hover { background: #00a382; }
+
+    .btn-sos {
+      background: var(--red);
+      color: white;
+    }
+    .btn-sos:hover { background: #b82425; }
+
+    .btn-center {
+      background: var(--primary);
+      color: white;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #2D3436;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 2000;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-group">
+      <div class="logo-icon">🛡️</div>
+      <div>
+        <h1>Guardian Sleeve Portal</h1>
+        <div class="subtitle">Global Real-Time Tracking & Emergency Override</div>
+      </div>
+    </div>
+    <div id="statusBadge" class="status-badge">
+      <div class="status-dot"></div>
+      <span id="statusText">Shield Armed & Normal</span>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Left Sidebar: Device Telemetry & Controls -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="card-title">Protected Carrier Profile</div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 18px; font-weight: 800;" id="carrierName">Sohan</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Device ID: GS-ESP32-01</div>
+          </div>
+          <span style="font-size: 26px;">👤</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Live Biometric Telemetry</div>
+        <div class="vitals-grid">
+          <div class="vital-box">
+            <div style="font-size: 13px; color: var(--text-muted);">Pulse Rate</div>
+            <div class="vital-value" id="valHeartRate">72 <span class="vital-unit">bpm</span></div>
+          </div>
+          <div class="vital-box">
+            <div style="font-size: 13px; color: var(--text-muted);">Blood Oxygen</div>
+            <div class="vital-value" id="valSpO2">98 <span class="vital-unit">%</span></div>
+          </div>
+          <div class="vital-box">
+            <div style="font-size: 13px; color: var(--text-muted);">Sleeve Battery</div>
+            <div class="vital-value" id="valBattery">92 <span class="vital-unit">%</span></div>
+          </div>
+          <div class="vital-box">
+            <div style="font-size: 13px; color: var(--text-muted);">Voice Shield</div>
+            <div class="vital-value" style="font-size: 16px; color: var(--green); padding-top: 6px;">Active</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Current GPS Coordinates</div>
+        <div id="valCoords" style="font-size: 14px; font-weight: 600; color: var(--text);">
+          28.6139° N, 77.2090° E
+        </div>
+        <button class="btn btn-center" onclick="centerMap()">📍 Center on Map</button>
+      </div>
+
+      <div class="actions-group">
+        <div class="card-title">Owner Remote Command Override</div>
+        <button class="btn btn-disarm" onclick="sendRemoteCommand('DISARM')">
+          🔓 REMOTE DISARM & RESTORE PHONE
+        </button>
+        <button class="btn btn-sos" onclick="sendRemoteCommand('FORCE_SOS')">
+          🚨 FORCE REMOTE SOS ALARM
+        </button>
+      </div>
+    </div>
+
+    <!-- Map View -->
+    <div class="map-container">
+      <div id="map"></div>
+    </div>
+  </div>
+
+    <!-- Critical Accident Alarm Modal for Owner -->
+    <div id="accidentAlarmModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(214, 48, 49, 0.88); z-index: 9999; backdrop-filter: blur(8px); align-items: center; justify-content: center; flex-direction: column; padding: 24px; text-align: center;">
+      <div style="background: white; border-radius: 28px; padding: 36px; max-width: 520px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; gap: 18px;">
+        <div style="font-size: 54px; animation: pulse 0.7s infinite alternate;">🚨</div>
+        <h2 style="font-size: 24px; font-weight: 800; color: #D63031;">CRITICAL ACCIDENT ALARM!</h2>
+        <p style="font-size: 15px; color: #2D3436; line-height: 22px;">
+          A <b>Hard Bang / Severe Fall from Height</b> was detected for <b>Sohan</b>!<br>
+          The 5-second "Are you okay?" check was <b>UNANSWERED</b>.
+        </p>
+        <div style="background: #FDEDEC; border-radius: 14px; padding: 12px 18px; font-size: 13px; font-weight: 700; color: #D63031; width: 100%;">
+          🔊 CONTINUOUS EMERGENCY BEEP ACTIVE UNTIL MANUALLY SILENCED
+        </div>
+        <button onclick="silenceAccidentAlarm()" style="background: #D63031; color: white; border: none; padding: 16px 24px; border-radius: 18px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 24px rgba(214,48,49,0.35);">
+          🔕 MANUALLY SILENCE ALARM & ACKNOWLEDGE
+        </button>
+      </div>
+    </div>
+
+  <div id="toast" class="toast">Command sent successfully</div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let map, marker, circle;
+    let currentLat = 28.6139;
+    let currentLng = 77.2090;
+
+    // --- WEB AUDIO API CONTINUOUS ALARM SYNTHESIZER ---
+    let audioCtx = null;
+    let beepInterval = null;
+    let isAlarmSoundPlaying = false;
+
+    function startEmergencySiren() {
+      if (isAlarmSoundPlaying) return;
+      isAlarmSoundPlaying = true;
+
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        // Loop high-pitch alternating alarm tones (900Hz / 1350Hz)
+        let toggle = false;
+        beepInterval = setInterval(() => {
+          if (!isAlarmSoundPlaying || !audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.value = toggle ? 1350 : 900;
+          toggle = !toggle;
+
+          gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.35);
+        }, 400);
+
+        console.log('[Audio] Continuous emergency alarm started.');
+      } catch (e) {
+        console.warn('Web Audio error:', e);
+      }
+    }
+
+    function stopEmergencySiren() {
+      isAlarmSoundPlaying = false;
+      if (beepInterval) {
+        clearInterval(beepInterval);
+        beepInterval = null;
+      }
+      console.log('[Audio] Emergency alarm silenced.');
+    }
+
+    // Initialize Map
+    function initMap() {
+      map = L.map('map').setView([currentLat, currentLng], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Custom Purple Pulse Marker for Carrier
+      const icon = L.divIcon({
+        className: 'custom-pin',
+        html: `<div style="background:#6C5CE7;width:24px;height:24px;border-radius:50%;border:4px solid white;box-shadow:0 0 14px rgba(108,92,231,0.8);"></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+
+      marker = L.marker([currentLat, currentLng], { icon }).addTo(map);
+      marker.bindPopup("<b>Sohan</b><br>Guardian Sleeve Active").openPopup();
+    }
+
+    function updateDeviceUI(device) {
+      if (!device) return;
+      currentLat = device.latitude || currentLat;
+      currentLng = device.longitude || currentLng;
+
+      document.getElementById('valHeartRate').innerHTML = `${device.heartRate} <span class="vital-unit">bpm</span>`;
+      document.getElementById('valSpO2').innerHTML = `${device.spO2} <span class="vital-unit">%</span>`;
+      document.getElementById('valBattery').innerHTML = `${device.battery} <span class="vital-unit">%</span>`;
+      document.getElementById('valCoords').innerText = `${currentLat.toFixed(5)}° N, ${currentLng.toFixed(5)}° E`;
+
+      const badge = document.getElementById('statusBadge');
+      const text = document.getElementById('statusText');
+      const modal = document.getElementById('accidentAlarmModal');
+
+      if (device.isOwnerAlarmBeeping) {
+        badge.className = 'status-badge danger';
+        text.innerText = '🚨 CRITICAL ACCIDENT ALARM RINGING';
+        modal.style.display = 'flex';
+        startEmergencySiren();
+      } else if (device.alertState === 'STAGE_2_ESCALATED') {
+        badge.className = 'status-badge danger';
+        text.innerText = '🚨 EMERGENCY DISTRESS TRIGGERED';
+        modal.style.display = 'none';
+        stopEmergencySiren();
+      } else {
+        badge.className = 'status-badge';
+        text.innerText = 'Shield Armed & Normal';
+        modal.style.display = 'none';
+        stopEmergencySiren();
+      }
+
+      if (marker) {
+        marker.setLatLng([currentLat, currentLng]);
+      }
+    }
+
+    async function silenceAccidentAlarm() {
+      stopEmergencySiren();
+      document.getElementById('accidentAlarmModal').style.display = 'none';
+      try {
+        const res = await fetch('/api/device/sohan/silence-beep', { method: 'POST' });
+        const data = await res.json();
+        showToast(data.message || 'Alarm silenced');
+      } catch (e) {
+        showToast('Error silencing alarm');
+      }
+    }
+
+    function centerMap() {
+      if (map) map.setView([currentLat, currentLng], 16);
+    }
+
+    async function sendRemoteCommand(cmd) {
+      try {
+        const res = await fetch('/api/device/sohan/command', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: cmd })
+        });
+        const data = await res.json();
+        showToast(data.message || `Command ${cmd} sent`);
+      } catch (e) {
+        showToast('Error sending command');
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Connect WebSocket
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'INIT_STATE') {
+          if (data.devices && data.devices.sohan) {
+            updateDeviceUI(data.devices.sohan);
+          }
+        } else if (data.type === 'DEVICE_UPDATE') {
+          updateDeviceUI(data.device);
+        }
+      };
+
+      ws.onclose = () => {
+        setTimeout(connectWebSocket, 3000);
+      };
+    }
+
+    window.onload = () => {
+      initMap();
+      connectWebSocket();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A0E17"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#070A0F"/>
+    </linearGradient>
+
+    <!-- Shield & Accent Gradient -->
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F0FF"/>
+      <stop offset="50%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+
+    <!-- Pulse Gradient -->
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F0FF"/>
+      <stop offset="50%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#00F0FF"/>
+    </linearGradient>
+
+    <!-- Glow Filters -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <radialGradient id="centerGlow" cx="25%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.12"/>
+      <stop offset="50%" stop-color="#6366F1" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#0A0E17" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="320" fill="url(#bgGrad)" rx="16"/>
+  <rect width="1200" height="320" fill="url(#centerGlow)" rx="16"/>
+  <rect width="1198" height="318" x="1" y="1" fill="none" stroke="#1E293B" stroke-width="1.5" rx="15"/>
+
+  <!-- Left: Shield Emblem -->
+  <g transform="translate(130, 48)">
+    <!-- Outer Glow Shield -->
+    <path d="M 110,8 L 192,42 C 192,125 145,188 110,212 C 75,188 28,125 28,42 Z"
+          fill="none" stroke="url(#primaryGrad)" stroke-width="6" filter="url(#glow)" opacity="0.4"/>
+
+    <!-- Main Shield -->
+    <path d="M 110,8 L 192,42 C 192,125 145,188 110,212 C 75,188 28,125 28,42 Z"
+          fill="#0B132B" fill-opacity="0.85" stroke="url(#primaryGrad)" stroke-width="3.5"/>
+
+    <!-- Inner Shield Inset -->
+    <path d="M 110,26 L 176,54 C 176,120 138,170 110,192 C 82,170 44,120 44,54 Z"
+          fill="none" stroke="#1E293B" stroke-width="1.8"/>
+
+    <!-- Pulse ECG Line Inside Shield -->
+    <path d="M 52,110 L 80,110 L 92,84 L 104,142 L 118,66 L 128,132 L 138,102 L 148,110 L 168,110"
+          fill="none" stroke="url(#pulseGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
+          filter="url(#glow)"/>
+
+    <!-- Radio / BLE Arc -->
+    <path d="M 110,-4 C 132,-4 150,5 164,18" fill="none" stroke="#00F0FF" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+    <circle cx="110" cy="8" r="4" fill="#00F0FF"/>
+  </g>
+
+  <!-- Right: Typography & Badges -->
+  <g transform="translate(390, 85)">
+    <!-- Brand Title -->
+    <text x="0" y="52" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, sans-serif"
+          font-size="52" font-weight="900" fill="#FFFFFF" letter-spacing="3.5">
+      GUARDIAN <tspan fill="url(#primaryGrad)">SLEEVE</tspan>
+    </text>
+
+    <!-- Subtitle / Tagline -->
+    <text x="0" y="98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, sans-serif"
+          font-size="16" font-weight="600" fill="#94A3B8" letter-spacing="2">
+      INTELLIGENT IOT WEARABLE &amp; MULTI-MODAL DISTRESS ESCALATION SYSTEM
+    </text>
+
+    <!-- Feature Pills -->
+    <g transform="translate(0, 126)">
+      <!-- Pill 1: ESP32 IoT -->
+      <rect x="0" y="0" width="145" height="32" rx="16" fill="#131C31" stroke="#25334E" stroke-width="1.2"/>
+      <circle cx="16" cy="16" r="4" fill="#00F0FF"/>
+      <text x="28" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#E2E8F0">ESP32 Sleeve</text>
+
+      <!-- Pill 2: Android Native -->
+      <rect x="155" y="0" width="145" height="32" rx="16" fill="#131C31" stroke="#25334E" stroke-width="1.2"/>
+      <circle cx="171" cy="16" r="4" fill="#10B981"/>
+      <text x="183" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#E2E8F0">Android Native</text>
+
+      <!-- Pill 3: Telegram SOS -->
+      <rect x="310" y="0" width="160" height="32" rx="16" fill="#131C31" stroke="#25334E" stroke-width="1.2"/>
+      <circle cx="326" cy="16" r="4" fill="#38BDF8"/>
+      <text x="338" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#E2E8F0">Telegram Live SOS</text>
+
+      <!-- Pill 4: Stealth Mode -->
+      <rect x="480" y="0" width="145" height="32" rx="16" fill="#131C31" stroke="#25334E" stroke-width="1.2"/>
+      <circle cx="496" cy="16" r="4" fill="#A855F7"/>
+      <text x="508" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#E2E8F0">Stealth Blackout</text>
+    </g>
+  </g>
+</svg>

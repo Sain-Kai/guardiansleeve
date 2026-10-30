@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Guardian Sleeve</string>
+    <string name="user_role">User (Carrier)</string>
+    <string name="owner_role">Owner (Remote Guardian)</string>
+    <string name="sos_status_idle">Shield Active &amp; Armed</string>
+    <string name="sos_status_triggered">EMERGENCY TRIGGERED</string>
+</resources>
